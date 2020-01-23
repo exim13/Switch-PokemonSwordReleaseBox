@@ -220,14 +220,9 @@ void take_action(action_t action, USB_JoystickReport_Input_t* const ReportData) 
 
 typedef enum {
 	SYNC_CONTROLLER,
-	FLY_TO_NURSERY,
-	APPROACH_NPC,
-	PICK_SWAP_SLOT,
-	SWAP_POKEMON,
-	BREEDING_PREP,
-	BREEDING,
-	BREATHE,
-	NEXT_ROUND,
+	RELEASE_POKES,
+	MOVE_POKE,
+	NEXT_ROW,
 	DONE
 } State_t;
 
@@ -242,7 +237,10 @@ int bufindex = 0;
 int portsval = 0;
 int swap_slot_number = 0;
 
-inline void do_steps(const command_t* steps, uint16_t steps_size, USB_JoystickReport_Input_t* const ReportData, State_t nextState, int add_swap_slot_number) {
+int row = 0;
+int column = 0;
+
+inline void do_steps(const command_t* steps, uint16_t steps_size, USB_JoystickReport_Input_t* const ReportData) {
 	take_action(steps[bufindex].action, ReportData);
 	duration_count ++;
 	
@@ -256,11 +254,24 @@ inline void do_steps(const command_t* steps, uint16_t steps_size, USB_JoystickRe
 	{
 		bufindex = 0;
 		duration_count = 0;
-		if (add_swap_slot_number) {
-			swap_slot_number = (swap_slot_number + 1) % 5;
+		if(row == 4 && column ==5){
+			state = DONE;
+		} else {
+			if(column == 5){
+				column = 0;
+				row++;
+				state = NEXT_ROW;
+			} else {
+				if(state == MOVE_POKE){
+					column++;
+					state = RELEASE_POKES;
+				} else if(state == RELEASE_POKES){
+					state = MOVE_POKE;
+				} else {
+					state = RELEASE_POKES;
+				}
+			}
 		}
-
-		state = nextState;
 		reset_report(ReportData);
 	}
 }
@@ -285,145 +296,19 @@ void GetNextReport(USB_JoystickReport_Input_t* const ReportData) {
 	{
 		case SYNC_CONTROLLER:
 			bufindex = 0;
-			state = BREATHE;
+			state = RELEASE_POKES;
+			break;
+
+		case RELEASE_POKES:
+			do_steps(release_poke, ARRAY_SIZE(release_poke), ReportData);
 			break;
 		
-		case BREATHE:
-			do_steps(wake_up_hang, ARRAY_SIZE(wake_up_hang), ReportData, FLY_TO_NURSERY, 0);
+		case MOVE_POKE:
+			do_steps(move_to_next_poke, ARRAY_SIZE(move_to_next_poke), ReportData);
 			break;
-
-		case FLY_TO_NURSERY:
-			do_steps(fly_to_breading_steps, ARRAY_SIZE(fly_to_breading_steps), ReportData, APPROACH_NPC, 0);
-			// take_action(fly_to_breading_steps[bufindex], ReportData);
-			// duration_count ++;
-			
-			// if (duration_count > fly_to_breading_steps[bufindex].duration)
-			// {
-			// 	bufindex ++;
-			// 	duration_count = 0;
-			// }
-
-			// if (bufindex > (int)(sizeof(fly_to_breading_steps) / sizeof(fly_to_breading_steps[0])) - 1) 
-			// {
-			// 	bufindex = 0;
-			// 	duration_count = 0;
-
-			// 	state = APPROACH_NPC;
-
-			// 	reset_report(ReportData);
-			// }
-			break;
-
-		case APPROACH_NPC:
-			do_steps(get_egg_steps, ARRAY_SIZE(get_egg_steps), ReportData, PICK_SWAP_SLOT, 0);
-			// take_action(get_egg_steps[bufindex], ReportData);
-			// duration_count ++;
-			
-			// if (duration_count > get_egg_steps[bufindex].duration)
-			// {
-			// 	bufindex ++;
-			// 	duration_count = 0;
-			// }
-
-			// if (bufindex > (int)(sizeof(get_egg_steps) / sizeof(get_egg_steps[0])) - 1) 
-			// {
-			// 	bufindex = 0;
-			// 	duration_count = 0;
-
-			// 	state = PICK_SWAP_SLOT;
-
-			// 	reset_report(ReportData);
-			// }
 		
-			break;
-	
-		case PICK_SWAP_SLOT:
-			// do_steps(swap_slot[swap_slot_number], swap_slot_size[swap_slot_number], ReportData, SWAP_POKEMON, 1);
-			take_action(swap_slot[swap_slot_number][bufindex].action, ReportData);
-			duration_count ++;
-			
-			if (duration_count > swap_slot[swap_slot_number][bufindex].duration)
-			{
-				bufindex ++;
-				duration_count = 0;
-			}
-
-			if (bufindex > swap_slot_size[swap_slot_number] - 1) 
-			{
-				bufindex = 0;
-				duration_count = 0;
-				swap_slot_number = (swap_slot_number + 1) % 5;
-
-				state = SWAP_POKEMON;
-
-				reset_report(ReportData);
-			}
-			break;
-
-			// take_action(swap_slot_3[bufindex], ReportData);
-			// duration_count ++;
-			
-			// if (duration_count > swap_slot_3[bufindex].duration)
-			// {
-			// 	bufindex ++;
-			// 	duration_count = 0;
-			// }
-
-			// if (bufindex > (int)(sizeof(swap_slot_3) / 
-			//                      sizeof(swap_slot_3[0])) - 1) 
-			// {
-			// 	bufindex = 0;
-			// 	duration_count = 0;
-			// 	swap_slot_number = (swap_slot_number + 1) % 5;
-
-			// 	state = SWAP_POKEMON;
-			// }
-			// break;
-
-		case SWAP_POKEMON:
-			do_steps(swap_pokemon_steps, ARRAY_SIZE(swap_pokemon_steps), ReportData, BREEDING_PREP, 0);
-			// take_action(swap_pokemon_steps[bufindex], ReportData);
-			// duration_count ++;
-
-			// if (duration_count > swap_pokemon_steps[bufindex].duration)
-			// {
-			// 	bufindex ++;
-			// 	duration_count = 0;
-			// }
-
-			// if (bufindex > (int)(sizeof(swap_pokemon_steps) / sizeof(swap_pokemon_steps[0])) - 1) 
-			// {
-			// 	bufindex = 0;
-			// 	duration_count = 0;
-
-			// 	state = BREEDING_PREP;
-
-			// 	reset_report(ReportData);
-			// }
-			break;
-
-		case BREEDING_PREP:
-			do_steps(breeding_prep_steps, ARRAY_SIZE(breeding_prep_steps), ReportData, BREEDING, 0);
-			break;
-
-		case BREEDING:
-			take_action(circle_around, ReportData);
-			duration_count ++;
-			
-			if (duration_count % 100 >= 0 && duration_count % 100 <= 5) {
-				take_action(press_a, ReportData);
-			}
-			
-			if (duration_count > breeding_duration - 1) {
-				duration_count = 0;
-				bufindex = 0;
-
-				state = NEXT_ROUND;
-			}
-			break;
-
-		case NEXT_ROUND:
-			do_steps(next_round_steps, ARRAY_SIZE(next_round_steps), ReportData, FLY_TO_NURSERY, 0);
+		case NEXT_ROW:
+			do_steps(move_to_next_row, ARRAY_SIZE(move_to_next_row), ReportData);
 			break;
 
 		case DONE:
