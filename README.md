@@ -1,23 +1,17 @@
 ## Switch-PokémonAutoBreeder
-Proof-of-Concept Fightstick for the Nintendo Switch, modified to run a script that repeatedly gets eggs from nursery and cycles around to hatch them.
+Proof-of-Concept Fightstick for the Nintendo Switch, modified to run a script that releases all pokemon in a box for Pokemon Sword and Shield.
 
 Uses the LUFA library and reverse-engineering of the Pokken Tournament Pro Pad for the Wii U to enable custom fightsticks on the Switch System v3.0.0
-
-### Video
-
-[![Link to Youtube Demo](https://img.youtube.com/vi/kS9kI8U9x9E/0.jpg)](https://www.youtube.com/watch?v=kS9kI8U9x9E)
 
 ### How to Use it?
 
 After compiling and flashing onto the micro-controller, you can just plug the micro-controller into the Nintendo switch, using a USB Type-A to Type-C converter if necessary. The script will start to run automatically. Before plugging it in, however, you need to make sure the following requirements are met:
 
-- You are currently at the Nursery at the Bridge Field in Wild Area.  
+- The box is entirely full of pokemon you'd like to release.
 
-- You have all six slots on your party filled with Pokémons, not eggs. The first one can be a Pokémon with Flame Body ability, and the script will never switch out the Pokémon on the first slot.
+- On the options page, make sure you set text speed to fast. 
 
-- On the options page, make sure you set text speed to fast, send to boxes to manual, and vertical camera control to regular. 
-
-- On the menu, you should make sure that the cursor is on the Town Map icon. So when you press X button, it automatically lands on Town Map. The script will assume that by simply pressing X, and several A, it will fly to the Bridge Field in front of the Nursery NPC. 
+- In the box, you should make sure that the cursor is on top left most pokemon. . 
 
 
 ### Wait, what?
@@ -28,14 +22,14 @@ Unlike the Wii U, which handles these controllers on a 'per-game' basis, the Swi
 #### Compiling and Flashing onto the Teensy 2.0++
 Go to the Teensy website and download/install the [Teensy Loader application](https://www.pjrc.com/teensy/loader.html). For Linux, follow their instructions for installing the [GCC Compiler and Tools](https://www.pjrc.com/teensy/gcc.html). For Windows, you will need the [latest AVR toolchain](http://www.atmel.com/tools/atmelavrtoolchainforwindows.aspx) from the Atmel site. See [this issue](https://github.com/LightningStalker/Splatmeme-Printer/issues/10) and [this thread](http://gbatemp.net/threads/how-to-use-shinyquagsires-splatoon-2-post-printer.479497/) on GBAtemp for more information. (Note for Mac users - the AVR MacPack is now called AVR CrossPack. If that does not work, you can try installing `avr-gcc` with `brew`.)
 
-Next, you need to grab the LUFA library. You can download it in a zipped folder at the bottom of [this page](http://www.fourwalledcubicle.com/LUFA.php). Unzip the folder, rename it `LUFA`, and place it where you like. Then, download or clone the contents of this repository onto your computer. Next, you'll need to make sure the `LUFA_PATH` inside of the `makefile` points to the `LUFA` subdirectory inside your `LUFA` directory. My `Switch-Fightstick` directory is in the same directory as my `LUFA` directory, so I set `LUFA_PATH = ../LUFA/LUFA`.
+Next, you need to grab the LUFA library. You can download it in a zipped folder at the bottom of [this page](http://www.fourwalledcubicle.com/LUFA.php). Unzip the folder, rename it `LUFA`, and place it where you like. Then, download or clone the contents of Switch-PokemonSwordReleaseBox repository onto your computer. Next, you'll need to make sure the `LUFA_PATH` inside of the `makefile` points to the `LUFA` subdirectory inside your `LUFA` directory. My `Switch-PokemonSwordReleaseBox` directory is in the same directory as my `LUFA` directory, so I set `LUFA_PATH = ../LUFA/LUFA`.
 
-Now you should be ready to rock. Open a terminal window in the `Switch-Fightstick` directory, type `make`, and hit enter to compile. If all goes well, the printout in the terminal will let you know it finished the build! Follow the directions on flashing `Joystick.hex` onto your Teensy, which can be found page where you downloaded the Teensy Loader application.
+Now you should be ready to rock. Open a terminal window in the `Switch-PokemonSwordReleaseBox` directory, type `make`, and hit enter to compile. If all goes well, the printout in the terminal will let you know it finished the build! Follow the directions on flashing `Joystick.hex` onto your Teensy, which can be found page where you downloaded the Teensy Loader application.
 
 #### Compiling and Flashing onto the Arduino UNO R3
-You will need to set your [Arduino in DFU mode](https://www.arduino.cc/en/Hacking/DFUProgramming8U2), and flash its USB controller. (Note for Mac users - try [brew](https://brew.sh/index_it.html) to install the dfu-programmer with `brew install dfu-programmer`.) Setting an Arduino UNO R3 in DFU mode is quite easy, all you need is a jumper (the boards come with the needed pins in place). Please note that once the board is flashed, you will need to flash it back with the original firmware to make it work again as a standard Arduino. To compile this project you will need the AVR GCC Compiler and Tools. (Again for Mac users - try brew, adding the [osx-cross/avr](osx-cross/avr) repository, all you need to do is to type `brew tap osx-cross/avr` and `brew install avr-gcc`.) Next, you need to grab the LUFA library: download and install it following the steps described for the Teensy 2.0++.
+You will need to set your [Arduino in DFU mode](https://www.arduino.cc/en/Hacking/DFUProgramming8U2), and flash its USB controller. (Note for Mac users - try [brew](https://brew.sh/index_it.html) to install the dfu-programmer with `brew install dfu-programmer`.) Setting an Arduino UNO R3 in DFU mode is quite easy, all you need is a jumper (the boards come with the needed pins in place). Please note that once the board is flashed, you will need to flash it back with the original firmware to make it work again as a standard Arduino. To compile this project you will need the AVR GCC Compiler and Tools. (for windows I used [AVR-GCC](https://www.microchip.com/mplab/avr-support/avr-and-arm-toolchains-c-compilers) (Again for Mac users - try brew, adding the [osx-cross/avr](osx-cross/avr) repository, all you need to do is to type `brew tap osx-cross/avr` and `brew install avr-gcc`.) Next, you need to grab the LUFA library: download and install it following the steps described for the Teensy 2.0++.
 
-Finally, open a terminal window in the `Switch-Fightstick` directory, edit the `makefile` setting `MCU = atmega16u2`, and compile by typing `make`. Follow the [DFU mode directions](https://www.arduino.cc/en/Hacking/DFUProgramming8U2) to flash `Joystick.hex` onto your Arduino UNO R3 and you are done.
+Finally, open a terminal window in the `Switch-PokemonSwordReleaseBox` directory, edit the `makefile` setting `MCU = atmega16u2`, and compile by typing `make`. May need to create a 'obj' folder in the 'Switch-PokemonSwordReleaseBox' directory. Follow the [DFU mode directions](https://www.arduino.cc/en/Hacking/DFUProgramming8U2) to flash `Joystick.hex` onto your Arduino UNO R3 and you are done.
 
 #### Compiling and Flashing onto the Arduino Micro
 The Arduino Micro is more like the Teensy in that it has a single microcontroller that communicates directly over USB. Most of the steps are the same as those for the Teensy, except do not download Teensy Loader program. You will also need to edit `makefile` before issuing `make`. Change `MCU = at90usb1286` on line 15 to `MCU = atmega32u4`.
