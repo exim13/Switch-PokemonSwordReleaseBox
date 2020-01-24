@@ -36,41 +36,38 @@ typedef struct {
 
 
 static const command_t release_poke[] = {
-    { hang, 100 },
 	{ move_forward, 5 },
-    { hang, 30 },
-	{ move_backward, 5 }, 
-    { hang, 30 },
+    { hang, 20 },
+	{ move_backward, 5 },
+    { hang, 20 },
 	{ press_a, 10 },
-    { hang, 70 },
+    { hang, 30 },
     { move_forward, 5 },
     { hang, 20 },
     { move_forward, 5 },
     { hang, 20 },
     { press_a, 10 },
-	{ hang, 100 },
+	{ hang, 70 },
 	{ move_forward, 5 },
     { hang, 20 },
     { press_a, 10 },
-	{ hang, 100 },
+	{ hang, 70 },
 	{ press_a, 10 },
-	{ hang, 70 },	// one done
+	{ hang, 30 },
 };
 
 static const command_t move_to_next_poke[] = {
-	{ hang, 100 },
     { move_right, 5 },
-    { hang, 30 },
+    { hang, 20 },
 };
 
 static const command_t move_to_next_row[] = {
-	{ hang, 100 },
     { move_right, 5 },
-	{ hang, 30 },
+	{ hang, 20 },
 	{ move_right, 5 },
-	{ hang, 30 },
+	{ hang, 20 },
 	{ move_backward, 5 }, 
-    { hang, 30 },	// next row ready
+    { hang, 20 },
 };
 
 static const uint16_t breeding_duration = 3000;
